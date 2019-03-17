@@ -39,7 +39,7 @@ class ID3 {
 		public String toString() {
 			return toString("");
 		} // toString()
-		
+
 		String toString(String indent) {
 			if (children != null) {
 				String s = "";
@@ -69,7 +69,7 @@ class ID3 {
 		strings = null;
 		stringCount = null;
 	} // constructor
-	
+
 	public void printTree() {
 		if (decisionTree == null)
 			error("Attempted to print null Tree");
@@ -84,10 +84,15 @@ class ID3 {
 	} // error()
 
 	static final double LOG2 = Math.log(2.0);
-	
+
 	static double xlogx(double x) {
 		return x == 0? 0: x * Math.log(x) / LOG2;
 	} // xlogx()
+
+	static double entropy(double p1, double p2) {
+		double entropy = - ((p1) * LOG2 * (p1)) - ((p2) * LOG2 * (p2));
+		return entropy;
+	}
 
 	/** Execute the decision tree on the given examples in testData, and print
 	 *  the resulting class names, one to a line, for each example in testData.
@@ -101,6 +106,7 @@ class ID3 {
 	public void train(String[][] trainingData) {
 		indexStrings(trainingData);
 		// PUT  YOUR CODE HERE FOR TRAINING
+		
 	} // train()
 
 	/** Given a 2-dimensional array containing the training data, numbers each
@@ -137,7 +143,7 @@ class ID3 {
 				System.out.println(data[0][attr] + " value " + index +
 									" = " + strings[attr][index]);
 	} // printStrings()
-		
+
 	/** Reads a text file containing a fixed number of comma-separated values
 	 *  on each line, and returns a two dimensional array of these values,
 	 *  indexed by line number and position in line.
@@ -175,8 +181,8 @@ class ID3 {
 		String[][] testData = parseCSV(args[1]);
 		ID3 classifier = new ID3();
 		classifier.train(trainingData);
-		classifier.printTree();
-		classifier.classify(testData);
+		//classifier.printTree();
+		//classifier.classify(testData);
 	} // main()
 
 } // class ID3
