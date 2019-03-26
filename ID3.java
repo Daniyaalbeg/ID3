@@ -54,12 +54,19 @@ class ID3 {
 
 	} // inner class TreeNode
 
+
+
+
+
+
 	private int attributes; 	// Number of attributes (including the class)
 	private int examples;		// Number of training examples
 	private TreeNode decisionTree;	// Tree learnt in training, used for classifying
 	private String[][] data;	// Training data indexed by example, attribute
 	private String[][] strings; // Unique strings for each attribute
 	private int[] stringCount;  // Number of unique strings for each attribute
+
+	private String[] classOptions;
 
 	public ID3() {
 		attributes = 0;
@@ -89,9 +96,54 @@ class ID3 {
 		return x == 0? 0: x * Math.log(x) / LOG2;
 	} // xlogx()
 
-	static double entropy(double p1, double p2) {
-		double entropy = - ((p1) * LOG2 * (p1)) - ((p2) * LOG2 * (p2));
+	static double entropy(int...values) {
+		double entropy = 0;
+		int numberOfOptions = 0;
+		for (int i = 0; i < values.length; i++) {
+			numberOfOptions += values[i];
+		}
+		for (double value: values) {
+			entropy += -xlogx(value/numberOfOptions);
+		}
 		return entropy;
+	}
+
+	private double calcEntropy(String[][] trainingData) {
+		//calculate class entropy
+		int classIndex = attributes-1;
+		classOptions = new String[stringCount[stringCount.length-1]];
+		int[] countOptions = new int[stringCount[stringCount.length-1]];
+		for (int i = 0; i<countOptions.length; i++) {
+			countOptions[i] = 0;
+			classOptions[i] = strings[strings.length-1][i];
+		}
+		for (int i = 0; i < trainingData.length; i++) {
+			//Every option in the class
+			for (int j = 0; j < classOptions.length; j++) {
+				//Check if that option equals the other options
+				if (classOptions[j].equals(trainingData[i][classIndex])) {
+					countOptions[j]++;
+				}
+			}
+		}
+
+		double classEntropy = this.entropy(countOptions);
+		return classEntropy;
+	}
+
+	private double infoGain(int attributeNum, String[][] trainingData) {
+		//calculate class entropy
+		double[] entropies = new double[stringCount[attributeNum]];
+		for (int i = 0; i < entropies.length; i++) {
+			//for each option
+
+
+			int count = 0;
+			for (int j = 0; j < trainingData.length; j++) {
+
+			}
+		}
+		return 0;
 	}
 
 	/** Execute the decision tree on the given examples in testData, and print
@@ -106,8 +158,58 @@ class ID3 {
 	public void train(String[][] trainingData) {
 		indexStrings(trainingData);
 		// PUT  YOUR CODE HERE FOR TRAINING
-		
+		//Algo
+			//If all instances of the attribute are yes create a lead node
+			// else if if all are negative create a no node
+			//else create a decision node
+		decisionTree = training(trainingData);
+		//NOTE: If entropy is 0 data is perfectly classified
 	} // train()
+
+	public TreeNode training(String[][] trainingData) {
+		//Calculate Entropy of the trainingData
+		Double entropy = calcEntropy(trainingData);
+		System.out.println(entropy);
+		if (entropy == 0) {
+			//Perfectly Classified
+			// return new TreeNode(null, trainingData[1][attributes-1]);
+		}
+		return null;
+
+		//calc info gain
+
+
+
+
+
+
+		// System.out.println("Attributes " + attributes);
+		// System.out.println();
+		// System.out.println("Examples " + examples);
+		// System.out.println();
+		// System.out.println("Data ");
+		// for (int i = 0; i < data.length; i++) {
+		// 	for (int j = 0; j < data[j].length; j++) {
+		// 		System.out.print(data[i][j]+" ");
+		// 	}
+		// 	System.out.println();
+		// }
+		// System.out.println();
+		// System.out.println("Strings ");
+		// for (int i = 0; i < strings.length; i++) {
+		// 	for (int j = 0; j < strings.length; j++) {
+		// 		System.out.print(strings[i][j]+" ");
+		// 	}
+		// 	System.out.println();
+		// }
+		// System.out.println();
+		// System.out.println("StringCount ");
+		// for (int i = 0; i < stringCount.length; i++) {
+		// 	System.out.println(stringCount[i]);
+		// }
+		// System.out.println();
+		// printStrings();
+	}
 
 	/** Given a 2-dimensional array containing the training data, numbers each
 	 *  unique value that each attribute has, and stores these Strings in
