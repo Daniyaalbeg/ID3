@@ -66,7 +66,7 @@ class ID3 {
 	private String[][] strings; // Unique strings for each attribute
 	private int[] stringCount;  // Number of unique strings for each attribute
 
-	private String[] classOptions;
+	private String[] classOptionsFinal;
 
 	public ID3() {
 		attributes = 0;
@@ -111,7 +111,8 @@ class ID3 {
 	private double calcEntropy(String[][] trainingData) {
 		//calculate class entropy
 		int classIndex = attributes-1;
-		classOptions = new String[stringCount[stringCount.length-1]];
+		//Fix this global BS array
+		String[] classOptions = new String[stringCount[stringCount.length-1]];
 		int[] countOptions = new int[stringCount[stringCount.length-1]];
 		for (int i = 0; i<countOptions.length; i++) {
 			countOptions[i] = 0;
@@ -124,6 +125,13 @@ class ID3 {
 				if (classOptions[j].equals(trainingData[i][classIndex])) {
 					countOptions[j]++;
 				}
+			}
+		}
+
+		if (classOptionsFinal == null) {
+			classOptionsFinal = new String[classOptions.length];
+			for (int i = 0; i<classOptions.length; i++) {
+				classOptionsFinal[i] = classOptions[i];
 			}
 		}
 
@@ -158,57 +166,100 @@ class ID3 {
 	public void train(String[][] trainingData) {
 		indexStrings(trainingData);
 		// PUT  YOUR CODE HERE FOR TRAINING
-		//Algo
-			//If all instances of the attribute are yes create a lead node
-			// else if if all are negative create a no node
-			//else create a decision node
 		decisionTree = training(trainingData);
 		//NOTE: If entropy is 0 data is perfectly classified
 	} // train()
 
+	public String[][] subset(String option, int attributeCol, String[][] trainingData) {
+		int timesOccurred = 0;
+		for (int i = 0; i < trainingData.length; i++) {
+			if (option.equals(trainingData[i][attributeCol])) {
+				timesOccurred++;
+			}
+		}
+		System.out.println(timesOccurred + " timesOccurred " + option);
+		System.out.println(attributeCol + " attributeCol");
+		String[][] subsetData = new String[timesOccurred][trainingData[0].length];
+		int subsetCounter = 0;
+		for (int i = 0; i < trainingData.length; i++) {
+			if (option.equals(trainingData[i][attributeCol])) {
+				subsetData[subsetCounter] = trainingData[i];
+				for (int j = 0; j < subsetData[subsetCounter].length; j++) {
+					System.out.print(subsetData[subsetCounter][j]+" ");
+				}
+				System.out.println();
+				subsetCounter++;
+			}
+		}
+		return subsetData;
+	}
+
+	public <T> void printArray(T[] array) {
+		for (T t: array) {
+			System.out.print(t + " ");
+		}
+		System.out.println();
+	}
+
+	public void print(String s) {
+		System.out.println(s);
+	}
+
 	public TreeNode training(String[][] trainingData) {
 		//Calculate Entropy of the trainingData
-		Double entropy = calcEntropy(trainingData);
-		System.out.println(entropy);
-		if (entropy == 0) {
+		Double targetEntropy = calcEntropy(trainingData);
+		System.out.println(targetEntropy);
+		if (targetEntropy == 0) {
 			//Perfectly Classified
-			// return new TreeNode(null, trainingData[1][attributes-1]);
+			// return new TreeNode(null, strings[attributes-1][]);
 		}
-		return null;
+		// return null;
 
 		//calc info gain
+		double maxGain = 0;
+		for (int i = 0; i < trainingData[0].length-1; i++) {
+			//Loop for every attribute
+			double entropyGivenAttribute = 0;
+			for (int j = 0; j < stringCount[i]; j++) {
+				//Loop for the column of that attribute
+				//Split the data so that for each attribute you get an entropy value for each option
+				String[][] subsetOfTrainingData = subset(strings[i][j], i, trainingData);
+				entropyGivenAttribute = calcEntropy(subsetOfTrainingData);
+				System.out.println(entropyGivenAttribute + "-------");
+			}
+		}
 
 
 
 
 
-
-		// System.out.println("Attributes " + attributes);
-		// System.out.println();
-		// System.out.println("Examples " + examples);
-		// System.out.println();
-		// System.out.println("Data ");
-		// for (int i = 0; i < data.length; i++) {
-		// 	for (int j = 0; j < data[j].length; j++) {
-		// 		System.out.print(data[i][j]+" ");
-		// 	}
-		// 	System.out.println();
-		// }
-		// System.out.println();
-		// System.out.println("Strings ");
-		// for (int i = 0; i < strings.length; i++) {
-		// 	for (int j = 0; j < strings.length; j++) {
-		// 		System.out.print(strings[i][j]+" ");
-		// 	}
-		// 	System.out.println();
-		// }
-		// System.out.println();
-		// System.out.println("StringCount ");
-		// for (int i = 0; i < stringCount.length; i++) {
-		// 	System.out.println(stringCount[i]);
-		// }
-		// System.out.println();
-		// printStrings();
+		System.out.println("Attributes " + attributes);
+		System.out.println();
+		System.out.println("Examples " + examples);
+		System.out.println();
+		System.out.println("Data ");
+		for (int i = 0; i < data.length; i++) {
+			for (int j = 0; j < data[j].length; j++) {
+				System.out.print(data[i][j]+" ");
+			}
+			System.out.println();
+		}
+		System.out.println();
+		System.out.println("Strings ");
+		for (int i = 0; i < strings.length; i++) {
+			for (int j = 0; j < strings.length; j++) {
+				System.out.print(strings[i][j]+" ");
+			}
+			System.out.println();
+		}
+		System.out.println();
+		System.out.println("StringCount ");
+		for (int i = 0; i < stringCount.length; i++) {
+			System.out.println(stringCount[i]);
+		}
+		System.out.println();
+		printStrings();
+		return null;
 	}
 
 	/** Given a 2-dimensional array containing the training data, numbers each
